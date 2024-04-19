@@ -1,0 +1,18 @@
+# Ubuntu with Oracle JDK version 1.7.0_80
+# This image exists because Oracle's Java 7 is end-of-life; in order to obtain
+# the tar.gz file you must create an Oracle account. Because of this, all other
+# public Oracle JDK 7 Docker images seem to have been taken down.
+FROM ubuntu:14.04 as build
+
+ARG JAVA_INSTALL_PATH="/usr/local/java"
+ARG JDK_SOURCE="jdk-8u202-linux-x64.tar.gz"
+
+RUN mkdir -p "$JAVA_INSTALL_PATH"
+COPY "./$JDK_SOURCE" "$JAVA_INSTALL_PATH"
+
+# Extract the JDK into $JAVA_INSTALL_PATH and Create a JBoss user for running the server
+RUN tar xf "$JAVA_INSTALL_PATH/$JDK_SOURCE" -C "$JAVA_INSTALL_PATH" && rm "$JAVA_INSTALL_PATH/$JDK_SOURCE"  && useradd --create-home --shell /bin/bash jboss
+
+FROM scratch
+
+COPY --from=build / /
